@@ -1,0 +1,5 @@
+chip/runs/
+dv/*/sim_build/
+*.vcd
+projects/*/runs/
+user_project_wrapper/runs/
