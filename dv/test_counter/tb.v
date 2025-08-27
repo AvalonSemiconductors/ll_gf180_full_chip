@@ -25,10 +25,15 @@ assign digital_pad[44] = clk;
 assign count = digital_pad[40:0];
 assign digital_pad[40:0] = web ? 41'hzzzzzzzzzzz : count_set;
 
+`ifdef USE_POWER_PINS
+tri1 vddcore;
+tri0 vsscore;
+`endif
+
 chip chip(
 `ifdef USE_POWER_PINS
-	.power_pad_vdd({9{vdd}}),
-	.power_pad_vss(9'h00),
+	.vddcore(vddcore),
+	.vsscore(vsscore),
 `endif
 	.digital_pad(digital_pad)
 );

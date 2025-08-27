@@ -58,14 +58,18 @@ class TopFlow(SequentialFlow):
         OpenROAD.IOPlacement,
         Odb.CustomIOPlacement,
         OpenROAD.GlobalPlacement,
+        Odb.WriteVerilogHeader,
+        Checker.PowerGridViolations,
         OpenROAD.DetailedPlacement,
         OpenROAD.GlobalRouting,
         OpenROAD.DetailedRouting,
+        Odb.RemoveRoutingObstructions,
         Checker.TrDRC,
         Odb.ReportDisconnectedPins,
         Checker.DisconnectedPins,
         Odb.ReportWireLength,
         Checker.WireLength,
+        Odb.CellFrequencyTables,
         OpenROAD.RCX,
         OpenROAD.STAPostPNR,
         OpenROAD.IRDropReport,
@@ -79,7 +83,12 @@ class TopFlow(SequentialFlow):
         Netgen.LVS,
         Checker.LVS,
         Magic.DRC,
-        Checker.MagicDRC
+        Checker.MagicDRC,
+        Checker.SetupViolations,
+        Checker.HoldViolations,
+        Checker.MaxSlewViolations,
+        Checker.MaxCapViolations,
+        Misc.ReportManufacturability
     ]
 
 if __name__ == '__main__':
@@ -108,10 +117,10 @@ if __name__ == '__main__':
             "user_project_example VDD VSS VDD VSS"
         ],
         "DIE_AREA": die_area,
-        "CORE_AREA": [die_area[0] + padding, die_area[1] + padding, die_area[2] - padding, die_area[3] - padding],
+        "CORE_AREA": [die_area[0] + padding + 0.2, die_area[1] + padding + 0.44, die_area[2] - padding, die_area[3] - padding],
         "FP_SIZING" : "absolute",
         "PDN_MULTILAYER": True,
-        "PDN_ENABLE_RAILS": True,
+        "PDN_ENABLE_RAILS": False,
         "RT_MAX_LAYER": "Metal5",
         "PDN_CORE_RING": True,
         "PDN_CORE_RING_VWIDTH": 5,

@@ -1,0 +1,113 @@
+library ("custom_power_pads") {
+	technology("cmos");
+	delay_model : "table_lookup";
+	power_model : "table_lookup";
+	time_unit : "1ns";
+	leakage_power_unit : "1uW";
+	voltage_unit : "1V";
+	pulling_resistance_unit : "1kohm";
+	current_unit : "1uA";
+	capacitive_load_unit(1.000000, "pf");
+	nom_voltage : 5.000000;
+	nom_temperature : 25.000000;
+	nom_process : 1.000000;
+	input_threshold_pct_rise : 50.000000;
+	output_threshold_pct_rise : 50.000000;
+	input_threshold_pct_fall : 50.000000;
+	output_threshold_pct_fall : 50.000000;
+	slew_lower_threshold_pct_rise : 10.000000;
+	slew_upper_threshold_pct_rise : 90.000000;
+	slew_lower_threshold_pct_fall : 10.000000;
+	slew_upper_threshold_pct_fall : 90.000000;
+	slew_derate_from_library : 1.000000;
+	default_fanout_load : 1.000000;
+	default_output_pin_cap : 0.000000;
+	default_inout_pin_cap : 0.000000;
+	default_input_pin_cap : 0.000000;
+	default_max_capacitance : 999.000000;
+	default_max_fanout : 1.000000;
+	default_cell_leakage_power : 0.000000;
+	default_leakage_power_density : 0.000000;
+	library_features("report_delay_calculation", \
+	  "report_power_calculation");
+	power_supply () {
+		default_power_rail : "VDD";
+		power_rail("DVDD",5.000000);
+		power_rail("DVSS",0.000000);
+		power_rail("VDD",5.000000);
+		power_rail("VSS",0.000000);
+	}
+	power_lut_template ("power_inputs_1") {
+		variable_1 : "input_transition_time";
+		index_1("1, 2, 3");
+	}
+	operating_conditions (typical) {
+		process : 1.000000;
+		temperature : 25.000000;
+		voltage : 5.000000;
+		tree_type : "balanced_tree";
+		power_rail("DVDD",5.000000);
+		power_rail("DVSS",0.000000);
+		power_rail("VDD",5.000000);
+		power_rail("VSS",0.000000);
+	}
+	lu_table_template ("del_1_3_6") {
+		variable_1 : "input_net_transition";
+		index_1("1, 2, 3");
+		variable_2 : "total_output_net_capacitance";
+		index_2("1, 2, 3, 4, 5, 6");
+	}
+	power_lut_template ("power_outputs_1") {
+		variable_1 : "input_transition_time";
+		index_1("1, 2, 3");
+		variable_2 : "total_output_net_capacitance";
+		index_2("1, 2, 3, 4, 5, 6");
+	}
+	default_operating_conditions : "typical";
+
+	cell ("gf180mcu_fd_io__dvdd_tail") {
+		pad_cell   : true;
+		dont_touch : true;
+		dont_use   : true;
+		area       : 26250.000000 ;
+		pin ("DVDD") {
+			direction     : "inout";
+			capacitance   : 0;
+			is_pad        : true;
+			drive_current : 0;
+			three_state   : "0";
+			function      : "1";
+		}
+		pin ("DVSS") {
+			direction     : "inout";
+			capacitance   : 0;
+		}
+		pin ("VSS") {
+			direction     : "inout";
+			capacitance   : 0;
+		}
+	}
+
+	cell ("gf180mcu_fd_io__dvss_tail") {
+		pad_cell   : true;
+		dont_touch : true;
+		dont_use   : true;
+		area       : 26250.000000 ;
+		pin ("DVDD") {
+			direction     : "inout";
+			capacitance   : 0;
+		}
+		pin ("DVSS") {
+			direction     : "inout";
+			capacitance   : 0;
+			is_pad        : true;
+			drive_current : 0;
+			three_state   : "0";
+			function      : "0";
+		}
+		pin ("VDD") {
+			direction     : "inout";
+			capacitance   : 0;
+		}
+	}
+}

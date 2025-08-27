@@ -23,7 +23,6 @@ class PadRing(OpenROADStep):
             "padring.tcl"
         )
 
-
 class TopFlow(SequentialFlow):
 
     Steps = [
@@ -32,6 +31,7 @@ class TopFlow(SequentialFlow):
         Checker.YosysUnmappedCells,
         Checker.YosysSynthChecks,
         OpenROAD.Floorplan,
+        Odb.SetPowerConnections,
         PadRing,
         Odb.ManualMacroPlacement,
         OpenROAD.CutRows,
@@ -40,27 +40,36 @@ class TopFlow(SequentialFlow):
         Odb.RemovePDNObstructions,
         Odb.AddRoutingObstructions,
         OpenROAD.GlobalPlacement,
+        Odb.WriteVerilogHeader,
+        Checker.PowerGridViolations,
         OpenROAD.DetailedPlacement,
         OpenROAD.GlobalRouting,
         OpenROAD.DetailedRouting,
+        Odb.RemoveRoutingObstructions,
         Checker.TrDRC,
         Odb.ReportDisconnectedPins,
         Checker.DisconnectedPins,
         Odb.ReportWireLength,
         Checker.WireLength,
+        Odb.CellFrequencyTables,
         OpenROAD.RCX,
         OpenROAD.STAPostPNR,
-        #OpenROAD.IRDropReport,
+        OpenROAD.IRDropReport,
         Magic.StreamOut,
         KLayout.StreamOut,
         KLayout.XOR,
         Checker.XOR,
         Magic.SpiceExtraction,
         Checker.IllegalOverlap,
-        #Netgen.LVS,
+        Netgen.LVS,
         #Checker.LVS,
         #Magic.DRC,
         #Checker.MagicDRC,
+        #Checker.SetupViolations,
+        Checker.HoldViolations,
+        Checker.MaxSlewViolations,
+        Checker.MaxCapViolations,
+        Misc.ReportManufacturability
     ]
 
 def latest_dir_for(path):
@@ -103,11 +112,12 @@ if __name__ == '__main__':
 
     sources = [
         "dir::src/chip.v",
-        f"dir::{latest_dir_for("../user_project_wrapper")}/final/pnl/user_project_wrapper.pnl.v"
+        f"dir::{latest_dir_for("../user_project_wrapper")}/final/pnl/user_project_wrapper.pnl.v",
+        "dir::../custom_power_pads/verilog/custom_power_pads.v"
     ]
 
     die_area = [0.00, 0.00, 3880.00, 5100.00]
-    padring_size = 435.12
+    padring_size = 390
     flow_cfg = {
         "DESIGN_NAME": "chip",
         "VERILOG_FILES": sources,
@@ -115,7 +125,7 @@ if __name__ == '__main__':
             ("user_project_wrapper", "../user_project_wrapper", "user_project_wrapper", 488, 488)
         ]),
         "CLOCK_PORT": "digital_pad[44]",
-        "CLOCK_PERIOD": 25,
+        "CLOCK_PERIOD": 35,
         "VERILOG_POWER_DEFINE": "USE_POWER_PINS",
         "VDD_NETS": ["vddcore"],
         "GND_NETS": ["vsscore"],
@@ -129,6 +139,7 @@ if __name__ == '__main__':
         #],
         "EXTRA_LIBS": [
             "pdk_dir::libs.ref/gf180mcu_fd_io/lib/gf180mcu_fd_io__tt_025C_5v00.lib",
+            "dir::../custom_power_pads/lib/custom_power_pads.lib"
         ],
         "EXTRA_LEFS": [
             "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__dvss.lef",
@@ -141,10 +152,14 @@ if __name__ == '__main__':
             "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__cor.lef",
             "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__fill10.lef",
             "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__fill5.lef",
-            "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__fill1.lef"
+            "pdk_dir::libs.ref/gf180mcu_fd_io/lef/gf180mcu_fd_io__fill1.lef",
+            "dir::../custom_power_pads/lef/gf180mcu_fd_io__dvdd_tail.lef",
+            "dir::../custom_power_pads/lef/gf180mcu_fd_io__dvss_tail.lef"
         ],
         "EXTRA_GDS": [
-            "pdk_dir::libs.ref/gf180mcu_fd_io/gds/gf180mcu_fd_io.gds"
+            "pdk_dir::libs.ref/gf180mcu_fd_io/gds/gf180mcu_fd_io.gds",
+            "dir::../custom_power_pads/gds/gf180mcu_fd_io__dvdd_tail.gds",
+            "dir::../custom_power_pads/gds/gf180mcu_fd_io__dvss_tail.gds"
         ],
         "DIE_AREA": die_area,
         "CORE_AREA": [die_area[0] + padring_size, die_area[1] + padring_size, die_area[2] - padring_size, die_area[3] - padring_size],
@@ -160,6 +175,7 @@ if __name__ == '__main__':
         "PDN_CORE_RING_HSPACING": 2,
         "PDN_HPITCH": 28.0,
         "PDN_VPITCH": 28.0,
+        "FP_PDN_CFG": "dir::pdn.tcl"
     }
 
     flow = TopFlow(flow_cfg, design_dir=".", pdk_root=PDK_ROOT, pdk=PDK)
